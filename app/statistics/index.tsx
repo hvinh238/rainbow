@@ -1,7 +1,8 @@
+import { router } from "expo-router";
 import { onAuthStateChanged } from "firebase/auth";
 import { collection, getDocs } from "firebase/firestore";
-import React, { useEffect, useState } from "react";
-import { Dimensions, ScrollView, StyleSheet, Text, View } from "react-native";
+import { useEffect, useState } from "react";
+import { Dimensions, ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { LineChart, PieChart } from "react-native-chart-kit";
 import { auth, db } from "../../firebase";
 
@@ -154,6 +155,9 @@ export default function StatisticsScreen() {
 
   return (
     <ScrollView style={styles.container}>
+      <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
+              <Text style={styles.backButtonText}>← Back</Text>
+      </TouchableOpacity>
       <View style={styles.header}>
         <Text style={styles.title}>💗 Thống kê tài chính</Text>
         <Text style={styles.subtitle}>
@@ -370,6 +374,26 @@ const styles = StyleSheet.create({
     color: "#ad1457",
     fontSize: 16,
     marginBottom: 6,
+  },
+  backButton: {
+    position: 'absolute',
+    top: 60,
+    left: 20,
+    zIndex: 1,
+    backgroundColor: 'rgba(255, 255, 255, 0.9)',
+    paddingHorizontal: 14,
+    paddingVertical: 8,
+    borderRadius: 12,
+    shadowColor: '#ff9ec6',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
+    elevation: 3,
+  },
+  backButtonText: {
+    fontSize: 14,
+    color: '#d63384',
+    fontWeight: '700',
   },
   tipText: { color: "#444", fontSize: 14, marginVertical: 2 },
 });

@@ -45,7 +45,7 @@ export const createGroupFund = async (
   try {
     const allMembers = [user.uid, ...members];
     
-    const docRef = await addDoc(collection(db, 'groupFunds'), {
+    const docRef = await addDoc(collection(db, 'GroupFunds'), {
       name,
       targetAmount: Number(targetAmount),
       currentAmount: 0,
@@ -71,8 +71,8 @@ export const contributeToFund = async (
   if (!user) throw new Error('Chưa đăng nhập');
 
   try {
-    const fundRef = doc(db, 'groupFunds', fundId);
-    const fundSnap = await getDocs(query(collection(db, 'groupFunds'), where('__name__', '==', fundId)));
+    const fundRef = doc(db, 'GroupFunds', fundId);
+    const fundSnap = await getDocs(query(collection(db, 'GroupFunds'), where('__name__', '==', fundId)));
     
     if (fundSnap.empty) {
       throw new Error('Quỹ không tồn tại');
@@ -106,7 +106,7 @@ export const getUserGroupFunds = (
   const user = auth.currentUser;
   if (!user) throw new Error('Chưa đăng nhập');
 
-  const fundsRef = collection(db, 'groupFunds');
+  const fundsRef = collection(db, 'GroupFunds');
   const q = query(fundsRef, where('members', 'array-contains', user.uid));
   
   return onSnapshot(q, (snapshot) => {
@@ -125,8 +125,8 @@ export const deleteGroupFund = async (fundId: string): Promise<void> => {
 
   try {
     // Kiểm tra quyền (chỉ người tạo mới được xóa)
-    const fundRef = doc(db, 'groupFunds', fundId);
-    const fundSnap = await getDocs(query(collection(db, 'groupFunds'), where('__name__', '==', fundId)));
+    const fundRef = doc(db, 'GroupFunds', fundId);
+    const fundSnap = await getDocs(query(collection(db, 'GroupFunds'), where('__name__', '==', fundId)));
     
     if (!fundSnap.empty) {
       const fundData = fundSnap.docs[0].data();
@@ -165,7 +165,7 @@ export const addMemberToFund = async (fundId: string, memberId: string): Promise
   if (!user) throw new Error('Chưa đăng nhập');
 
   try {
-    const fundRef = doc(db, 'groupFunds', fundId);
+    const fundRef = doc(db, 'GroupFunds', fundId);
     
     await updateDoc(fundRef, {
       members: arrayUnion(memberId),

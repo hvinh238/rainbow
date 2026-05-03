@@ -1,4 +1,4 @@
-import { createUserWithEmailAndPassword, signOut as firebaseSignOut, onAuthStateChanged, signInWithEmailAndPassword, updateProfile } from 'firebase/auth';
+import { createUserWithEmailAndPassword, signOut as firebaseSignOut, onAuthStateChanged, signInWithEmailAndPassword, updateProfile, User } from 'firebase/auth';
 import { doc, setDoc } from 'firebase/firestore';
 import { auth, db } from '../firebase';
 
@@ -10,7 +10,7 @@ export const login = async (email: string, password: string) => {
   }
 };
 
-export const signup = async (email: string, password: string, displayName?: string) => {
+export const signup = async (email: string, password: string, displayName?: string): Promise<User> => {
   try {
     const userCredential = await createUserWithEmailAndPassword(auth, email, password);
     if (displayName) {
@@ -20,8 +20,11 @@ export const signup = async (email: string, password: string, displayName?: stri
     await setDoc(doc(db, 'users', userCredential.user.uid), {
       email,
       displayName: displayName || email,
+      friends: [],
+      friendRequests: [],
       createdAt: new Date().toISOString(),
     });
+    return userCredential.user;
   } catch (error) {
     throw error;
   }

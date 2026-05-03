@@ -58,9 +58,9 @@ const checkFirebaseConnection = () => {
 // 🆕 HÀM: Đánh dấu tin nhắn đã giao (delivered)
 export const markMessagesAsDelivered = async (conversationId: string, userId: string) => {
   try {
-    const messagesRef = collection(db, 'messages');
+    const MessagesRef = collection(db, 'Messages');
     const q = query(
-      messagesRef,
+      MessagesRef,
       where('conversationId', '==', conversationId),
       where('receiverId', '==', userId),
       where('delivered', '==', false)
@@ -86,9 +86,9 @@ export const markMessagesAsDelivered = async (conversationId: string, userId: st
 // 🆕 HÀM: Đánh dấu tin nhắn đã đọc (read)
 export const markMessagesAsRead = async (conversationId: string, userId: string) => {
   try {
-    const messagesRef = collection(db, 'messages');
+    const MessagesRef = collection(db, 'Messages');
     const q = query(
-      messagesRef,
+      MessagesRef,
       where('conversationId', '==', conversationId),
       where('receiverId', '==', userId),
       where('read', '==', false)
@@ -151,7 +151,7 @@ export const sendMessage = async (
 
     console.log('📨 Dữ liệu tin nhắn:', messageData);
 
-    const messageRef = await addDoc(collection(db, 'messages'), messageData);
+    const messageRef = await addDoc(collection(db, 'Messages'), messageData);
     console.log('✅ Tin nhắn đã gửi, ID:', messageRef.id);
 
     // Cập nhật conversation và bỏ đánh dấu isNewFriend
@@ -173,7 +173,7 @@ export const sendMessage = async (
 // 🛠️ SỬA HÀM getMessages - THÊM THEO DÕI TRẠNG THÁI
 export const getMessages = (
   conversationId: string, 
-  callback: (messages: Message[]) => void
+  callback: (Messages: Message[]) => void
 ) => {
   try {
     const user = checkFirebaseConnection();
@@ -184,32 +184,32 @@ export const getMessages = (
       return () => {};
     }
 
-    const messagesRef = collection(db, 'messages');
+    const MessagesRef = collection(db, 'Messages');
     const q = query(
-      messagesRef,
+      MessagesRef,
       where('conversationId', '==', conversationId)
     );
 
-    console.log('🔄 Lắng nghe messages cho conversation:', conversationId);
+    console.log('🔄 Lắng nghe Messages cho conversation:', conversationId);
 
     const unsubscribe = onSnapshot(q, 
       async (snapshot) => {
         try {
-          const messagesData = snapshot.docs.map(doc => ({
+          const MessagesData = snapshot.docs.map(doc => ({
             id: doc.id,
             ...doc.data()
           })) as Message[];
           
-          messagesData.sort((a, b) => {
+          MessagesData.sort((a, b) => {
             const timeA = a.timestamp?.toDate?.() || new Date(0);
             const timeB = b.timestamp?.toDate?.() || new Date(0);
             return timeA.getTime() - timeB.getTime();
           });
           
-          console.log(`📨 Nhận ${messagesData.length} messages`);
+          console.log(`📨 Nhận ${MessagesData.length} Messages`);
           
           // 🆕 TỰ ĐỘNG ĐÁNH DẤU TIN NHẮN ĐÃ GIAO KHI NGƯỜI NHẬN MỞ CHAT
-          const receivedMessages = messagesData.filter(msg => 
+          const receivedMessages = MessagesData.filter(msg => 
             msg.receiverId === user.uid && !msg.delivered
           );
           
@@ -217,28 +217,28 @@ export const getMessages = (
             await markMessagesAsDelivered(conversationId, user.uid);
           }
           
-          callback(messagesData);
+          callback(MessagesData);
         } catch (error) {
-          console.error('❌ Lỗi xử lý messages:', error);
+          console.error('❌ Lỗi xử lý Messages:', error);
           callback([]);
         }
       },
       (error) => {
-        console.error('❌ Lỗi lắng nghe messages:', error);
+        console.error('❌ Lỗi lắng nghe Messages:', error);
         callback([]);
       }
     );
 
     return unsubscribe;
   } catch (error: any) {
-    console.error('❌ Lỗi khởi tạo lắng nghe messages:', error);
+    console.error('❌ Lỗi khởi tạo lắng nghe Messages:', error);
     callback([]);
     return () => {};
   }
 };
 
 // 🆕 HÀM: Lấy trạng thái hiển thị cho tin nhắn
-export const getMessageStatus = (message: Message, currentUserId: string): string => {
+export const getMessagestatus = (message: Message, currentUserId: string): string => {
   if (message.senderId !== currentUserId) {
     return ''; // Tin nhắn của người khác không hiển thị trạng thái
   }
@@ -256,7 +256,7 @@ export const getMessageStatus = (message: Message, currentUserId: string): strin
 };
 
 // 🆕 HÀM: Lấy icon trạng thái cho tin nhắn
-export const getMessageStatusIcon = (message: Message, currentUserId: string): string => {
+export const getMessagestatusIcon = (message: Message, currentUserId: string): string => {
   if (message.senderId !== currentUserId) {
     return ''; // Tin nhắn của người khác không hiển thị icon
   }
@@ -675,9 +675,9 @@ export const deleteConversation = async (conversationId: string) => {
 
 export const getUnreadCount = async (conversationId: string, userId: string): Promise<number> => {
   try {
-    const messagesRef = collection(db, 'messages');
+    const MessagesRef = collection(db, 'Messages');
     const q = query(
-      messagesRef,
+      MessagesRef,
       where('conversationId', '==', conversationId),
       where('receiverId', '==', userId),
       where('read', '==', false)
